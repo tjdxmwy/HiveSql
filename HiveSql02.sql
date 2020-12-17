@@ -211,3 +211,18 @@ load data local inpath "/opt/module/datas/student.txt" into table stu_buck;
 -- 需要设置这两个属性
 set hive.enforce.bucketing=true;
 set mapreduce.job.reduces=-1;
+
+分桶抽样查询
+
+对于非常大的数据集，有时用户需要使用的是一个具有代表性的查询结果而不是全部结果。Hive可以通过对表进行抽样来满足这个需求。
+查询表stu_buck中的数据。
+
+select * from stu_buck tablesample(bucket 1 out of 4 on id);
+
+注：tablesample是抽样语句，语法：TABLESAMPLE(BUCKET x OUT OF y) 。
+y必须是table总bucket数的倍数或者因子。hive根据y的大小，决定抽样的比例。
+例如，table总共分了4份，当y=2时，抽取(4/2=)2个bucket的数据，当y=8时，抽取(4/8=)1/2个bucket的数据。
+x表示从哪个bucket开始抽取，如果需要取多个分区，以后的分区号为当前分区号加上y。
+例如，table总bucket数为4，tablesample(bucket 1 out of 2)，表示总共抽取（4/2=）2个bucket的数据，抽取第1(x)个和第3(x+y)个bucket的数据。
+注意：x的值必须小于等于y的值，否则
+FAILED: SemanticException [Error 10061]: Numerator should not be bigger than denominator in sample clause for table stu_buck
