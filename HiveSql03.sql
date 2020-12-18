@@ -314,4 +314,93 @@ from score;
 +-------------+----------------+--------------+-----+-----+-----+
 
 
+三、时间函数
+show functions like "*date*";
 
++---------------+
+|   tab_name    |
++---------------+
+| current_date  |
+| date_add      |
+| date_format   |
+| date_sub      |
+| datediff      |
+| to_date       |
++---------------+
+
+--current_date 返回当前日期
+select current_date();
+
+--日期的加减
+--今天开始90天以后的日期
+select date_add(current_date(), 90);
+--今天开始90天以前的日期
+select date_sub(current_date(), 90);
+
+--日期差
+select date_diff(current_date(), "1993-05-14");
+
+-- result:10079
+
+-- date_format
+select date_format(current_date(), "y");
+select date_format(current_date(), "M");
+select date_format(current_date(), "d");
+
+-- to_date
+select to_date("2020-12-17 10:55:00");
+
+-- result: 2020-12-17
+
+
+四、练习
+
+习题：有哪些顾客连续两天来过我的店，数据是business
+
+-- 1.对name分区并且按照时间排序 
+select *,
+row_number() over(partition by name order by orderdate) as rn 
+from business;
+-- 2.将日期减去排序rn,如果得到的时间date2相等，证明是连续两天来的顾客
+select t.name, t.orderdate, t.cost, t.rn, date_sub(t.orderdate, t.rn) as date2
+from 
+(select name, orderdate, cost,
+row_number() over(partition by name order by orderdate) as rn 
+from business) t;
+
++---------+--------------+---------+-------+-------------+
+| t.name  | t.orderdate  | t.cost  | t.rn  |    date2    |
++---------+--------------+---------+-------+-------------+
+| jack    | 2017-01-01   | 10      | 1     | 2016-12-31  |
+| jack    | 2017-01-05   | 46      | 2     | 2017-01-03  |
+| jack    | 2017-01-08   | 55      | 3     | 2017-01-05  |
+| jack    | 2017-02-03   | 23      | 4     | 2017-01-30  |
+| jack    | 2017-04-06   | 42      | 5     | 2017-04-01  |
+| mart    | 2017-04-08   | 62      | 1     | 2017-04-07  |
+| mart    | 2017-04-09   | 68      | 2     | 2017-04-07  |
+| mart    | 2017-04-11   | 75      | 3     | 2017-04-08  |
+| mart    | 2017-04-13   | 94      | 4     | 2017-04-09  |
+| neil    | 2017-05-10   | 12      | 1     | 2017-05-09  |
+| neil    | 2017-06-12   | 80      | 2     | 2017-06-10  |
+| tony    | 2017-01-02   | 15      | 1     | 2017-01-01  |
+| tony    | 2017-01-04   | 29      | 2     | 2017-01-02  |
+| tony    | 2017-01-07   | 50      | 3     | 2017-01-04  |
++---------+--------------+---------+-------+-------------+
+
+-- 3.对name和date2分组，找出大于2次的人员
+
+select t2.name, count(*) c
+from 
+(select t.name, t.orderdate, t.cost, t.rn, date_sub(t.orderdate, t.rn) as date2
+from 
+(select name, orderdate, cost,
+row_number() over(partition by name order by orderdate) as rn 
+from business) t) t2
+group by t2.name, t2.date2 
+having count(*) >= 2;
+
++----------+----+
+| t2.name  | c  |
++----------+----+
+| mart     | 2  |
++----------+----+

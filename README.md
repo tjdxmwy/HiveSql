@@ -74,4 +74,28 @@
 
 # 4 HiveSql04
 
+### 4.1 用户自定义函数
+
+##### 	4.1.1 自定义函数
+
+```markdown
+1）Hive 自带了一些函数，比如：max/min等，但是数量有限，自己可以通过自定义UDF来方便的扩展。
+2）当Hive提供的内置函数无法满足你的业务处理需要时，此时就可以考虑使用用户自定义函数（UDF：user-defined function）。
+3）根据用户自定义函数类别分为以下三种：
+    （1）UDF（User-Defined-Function）
+        一进一出
+    （2）UDAF（User-Defined Aggregation Function）
+        聚集函数，多进一出
+        类似于：count/max/min
+    （3）UDTF（User-Defined Table-Generating Functions）
+        一进多出
+        如lateral view explore()
+```
+
+### 4.2 存储和压缩对比
+
+### 4.3 表的优化
+
+
+
 # 5 HiveSql05
